@@ -1,8 +1,46 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { Zap, Shield, Cpu, Sparkles, ChevronRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Zap, Shield, Cpu, Sparkles, ChevronRight, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import type { User } from "@supabase/supabase-js";
 
 const Index = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Verificar sessão inicial
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Escutar mudanças de autenticação
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Erro ao sair",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Logout realizado",
+        description: "Até logo!",
+      });
+      navigate("/auth");
+    }
+  };
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -21,7 +59,24 @@ const Index = () => {
             <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Terms
             </Link>
-            <Button className="glow-primary">Get Started</Button>
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">{user.email}</span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleLogout}
+                  className="gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sair
+                </Button>
+              </div>
+            ) : (
+              <Link to="/auth">
+                <Button className="glow-primary">Get Started</Button>
+              </Link>
+            )}
           </div>
         </nav>
       </header>
