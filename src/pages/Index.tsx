@@ -5,9 +5,11 @@ import { Zap, Shield, Cpu, Sparkles, ChevronRight, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { User } from "@supabase/supabase-js";
+import { AuthDialog } from "@/components/AuthDialog";
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -42,7 +44,9 @@ const Index = () => {
     }
   };
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
+      <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 glass-morphism">
         <nav className="container mx-auto px-6 py-4 flex items-center justify-between">
@@ -73,9 +77,9 @@ const Index = () => {
                 </Button>
               </div>
             ) : (
-              <Link to="/auth">
-                <Button className="glow-primary">Get Started</Button>
-              </Link>
+              <Button className="glow-primary" onClick={() => setAuthDialogOpen(true)}>
+                Get Started
+              </Button>
             )}
           </div>
         </nav>
@@ -190,7 +194,11 @@ const Index = () => {
             <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
               Join thousands of companies already using B1nar to automate their operations and boost productivity.
             </p>
-            <Button size="lg" className="glow-primary">
+            <Button 
+              size="lg" 
+              className="glow-primary"
+              onClick={() => setAuthDialogOpen(true)}
+            >
               Get Started Now
               <ChevronRight className="w-5 h-5 ml-2" />
             </Button>
@@ -223,6 +231,7 @@ const Index = () => {
         </div>
       </footer>
     </div>
+    </>
   );
 };
 

@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -33,34 +32,6 @@ const Auth = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-      },
-    });
-
-    if (error) {
-      toast({
-        title: "Erro ao criar conta",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Conta criada com sucesso!",
-        description: "Você já pode fazer login.",
-      });
-    }
-
-    setLoading(false);
-  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +61,11 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
       <div className="w-full max-w-md">
+        <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors">
+          <ArrowLeft className="h-4 w-4" />
+          Voltar para home
+        </Link>
+
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold gradient-text mb-2">B1nar</h1>
           <p className="text-muted-foreground">Hub de Aplicativos Empresariais</p>
@@ -98,102 +74,49 @@ const Auth = () => {
         <Card className="liquid-glass border-glass">
           <CardHeader>
             <CardTitle>Acesse sua conta</CardTitle>
-            <CardDescription>Entre ou crie uma nova conta</CardDescription>
+            <CardDescription>Entre com suas credenciais</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 neo-morph mb-6">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Cadastro</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="login">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
-                    <Input
-                      id="login-email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="neo-morph-inset"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="login-password">Senha</Label>
-                    <Input
-                      id="login-password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="neo-morph-inset"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full neo-morph glow-primary" 
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Entrando...
-                      </>
-                    ) : (
-                      "Entrar"
-                    )}
-                  </Button>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="neo-morph-inset"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Senha</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      minLength={6}
-                      className="neo-morph-inset"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full neo-morph glow-primary" 
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Criando conta...
-                      </>
-                    ) : (
-                      "Criar conta"
-                    )}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="neo-morph-inset"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="neo-morph-inset"
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full neo-morph glow-primary" 
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Entrando...
+                  </>
+                ) : (
+                  "Entrar"
+                )}
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </div>
